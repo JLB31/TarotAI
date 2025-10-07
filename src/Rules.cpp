@@ -156,4 +156,25 @@ namespace TarotRules
             std::cout << " - " << c.getName() << " (" << static_cast<int>(c.getSuit()) << ")\n";
     }
 
+    int findNextLeader(int leader, std::vector<Card> &levee)
+    {
+        int newLeader=leader;
+        int i=(leader+1)%4;
+        do
+        {
+            if(levee[i].getSuit() == levee[newLeader].getSuit())
+            {
+                if(static_cast<int>(levee[i].getRank()) > static_cast<int>(levee[newLeader].getSuit()))
+                {
+                    newLeader = i;
+                }
+            }
+            else if (levee[i].getSuit() == Suit::Trump)
+            {
+                newLeader = i;
+            }
+            i=(i+1)%4;
+        }while(i!=leader);
+        return newLeader;
+    }
 }

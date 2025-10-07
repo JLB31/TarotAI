@@ -119,43 +119,6 @@ CardInfo getCardInfo(int idx)
     }
 }
 
-bool cardLess(const Card &a, const Card &b)
-{
-    auto suitOrder = [](Suit s)
-    {
-        switch (s)
-        {
-            case Suit::Excuse:   return 0;
-            case Suit::Trump:    return 1;
-            case Suit::Hearts:   return 2;
-            case Suit::Diamonds: return 3;
-            case Suit::Clubs:    return 4;
-            case Suit::Spades:   return 5;
-        }
-        return 6;
-    };
-
-    int sa = suitOrder(a.getSuit());
-    int sb = suitOrder(b.getSuit());
-
-    if (sa != sb)
-    {
-        return sa < sb;
-    }
-
-    int ra = static_cast<int>(a.getRank());
-    int rb = static_cast<int>(b.getRank());
-
-    if (ra != rb)
-    {
-        return ra < rb;
-    }
-
-    // En cas d’égalité parfaite, on compare les noms pour stabiliser le tri
-    return a.getName() < b.getName();
-}
-
-
 void tirer(std::vector<std::vector<Card>> &players, std::vector<Card> &chien, std::vector<Card> &deck)
 {
     std::random_device rd;
@@ -170,10 +133,12 @@ void tirer(std::vector<std::vector<Card>> &players, std::vector<Card> &chien, st
     {
         if (i < NUM_PLAYERS * CARDS_PER_PLAYER)
         {
+            deck[i].setOwner(i / CARDS_PER_PLAYER);
             players[i / CARDS_PER_PLAYER].push_back(deck[i]);
         }
         else
         {
+            deck[i].setOwner(-1);
             chien.push_back(deck[i]);
         }
     }
@@ -264,10 +229,31 @@ static void positionnerTout(sf::RenderWindow &window,
 
     for (int i = 0; i < chien.size(); ++i)
     {
-        float x = chienStartX + i * tailleCarte.x*scale;
-        chien[i].setPosition({x, chienY});
-        chien[i].setRotation(sf::degrees(0.f));
-        chien[i].setScale({scale, scale});
+        switch(chien[i].getOwner())
+        {
+        case 0:
+            chien[i].setPosition({winSize.x/2, winSize.y/2 + tailleCarte.y*scale/2});
+            chien[i].setScale({scale, scale});
+            break;
+        case 1:
+            chien[i].setPosition({winSize.x/2 + tailleCarte.y*scale/2, winSize.y/2});
+            chien[i].setScale({scale, scale});
+            break;
+        case 2:
+            chien[i].setPosition({winSize.x/2, winSize.y/2 - tailleCarte.y*scale/2});
+            chien[i].setScale({scale, scale});
+            break;
+        case 3:
+            chien[i].setPosition({winSize.x/2 - tailleCarte.y*scale/2, winSize.y/2});
+            chien[i].setScale({scale, scale});
+            break;
+        default:
+            float x = chienStartX + i * tailleCarte.x*scale;
+            chien[i].setPosition({x, chienY});
+            chien[i].setRotation(sf::degrees(0.f));
+            chien[i].setScale({scale, scale});
+            break;
+        }
     }
 
     window.clear(sf::Color(0, 100, 0)); // tapis vert
@@ -299,7 +285,7 @@ int main()
     };
 
     // Chargement des textures
-    std::vector<sf::Texture> textures(TOTAL_CARDS);
+    std::vector<sf::Texture> textures(TOTAL_CARDS+1);
     for (int i = 0; i < TOTAL_CARDS; ++i)
     {
         std::string filename = std::string("src/assets/cards/card_") +
@@ -313,12 +299,20 @@ int main()
         }
     }
 
+    //creation de la texture back
+    std::string filename = std::string("src/assets/cards/back.png");
+    if (!textures[TOTAL_CARDS].loadFromFile(filename))
+    {
+        std::cerr << "Erreur de chargement : " << filename << "\n";
+    }
+
     // Création du jeu complet
     std::vector<Card> deck;
     for (int i = 0; i < TOTAL_CARDS; ++i)
     {
         CardInfo info = getCardInfo(i);
-        deck.emplace_back(info.name, i, info.suit, info.rank, info.points, textures[i], sf::Vector2f{0.f, 0.f});
+        auto& nouvelleCarte = deck.emplace_back(info.name, i, info.suit, info.rank, info.points, textures[i], sf::Vector2f{0.f, 0.f});
+        nouvelleCarte.setBack(textures[TOTAL_CARDS]);
     }
 
     // Mélange et distribution

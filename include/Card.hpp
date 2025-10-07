@@ -30,10 +30,13 @@ public:
     void setPosition(sf::Vector2f position);
     void setScale(sf::Vector2f scale);
     void setRotation(sf::Angle angle);
+    void setBack(const sf::Texture& texture);
+    void setOwner(int owner);
     const std::string& getName() const;
     Suit getSuit() const;
     Rank getRank() const;
     float getPoints() const;
+    int getOwner() const;
     bool isOudler() const;
     bool isFaceCard() const;
     int getIndex() const;
@@ -42,9 +45,11 @@ public:
 private:
     std::string name;
     int index;
+    int owner;
     Suit suit;
     Rank rank;
     float points;
     sf::Sprite sprite;
+    sf::Sprite spriteBack;
 };
 

@@ -45,14 +45,22 @@ namespace TarotGame
         sf::sleep(sf::milliseconds(1000));        
         
         // Fusion du chien (simplifiée)
+        for (auto &card : chien)
+        {
+            card.setOwner(preneur);
+        }
         players[preneur].insert(players[preneur].end(), chien.begin(), chien.end());
+        chien.clear();
         TarotGame::trierMain(players[preneur]);
         positionnerTout(window,players,chien);
         sf::sleep(sf::milliseconds(2000));
 
-        chien.clear();
-        TarotRules::faireEcartMaxCoupe(players[preneur], chien);
 
+        TarotRules::faireEcartMaxCoupe(players[preneur], chien);
+        for (auto &card : chien)
+        {
+            card.setOwner(-1);
+        }
         positionnerTout(window,players,chien);
         sf::sleep(sf::milliseconds(5000));
 
@@ -91,7 +99,7 @@ namespace TarotGame
             }
 
             // Détermination du gagnant (simplifiée)
-            int gagnant = leader; // à améliorer avec logique d’atout
+            int gagnant = TarotRules::findNextLeader(leader, levee.cartes);
             levee.gagnantIndex = gagnant;
             levees.push_back(levee);
             leader = gagnant;

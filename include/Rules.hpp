@@ -31,6 +31,7 @@ namespace TarotRules
                  bool hasDemandedSuit,
                  bool hasTrump);
     void faireEcartMaxCoupe(std::vector<Card> &mainPreneur, std::vector<Card> &chien);
+    int findNextLeader(int leader, std::vector<Card> &levee);
 
 
 }

@@ -2,7 +2,7 @@
 
 static sf::Texture dummy;
 
-Card::Card() : suit(Suit::None), index(-1), points(0), name("Undefined"), sprite(dummy) {}
+Card::Card() : suit(Suit::None), index(-1), owner(-1), points(0), name("Undefined"), sprite(dummy), spriteBack(dummy) {}
 
 Card::Card(const std::string &name, int index, Suit suit, Rank rank, float points,
            const sf::Texture &texture, sf::Vector2f position)
@@ -11,7 +11,8 @@ Card::Card(const std::string &name, int index, Suit suit, Rank rank, float point
       suit(suit),
       rank(rank),
       points(points),
-      sprite(texture) // ← constructeur explicite avec texture
+      sprite(texture),
+      spriteBack(texture)
 {
     sprite.setPosition(position);
 }
@@ -41,6 +42,16 @@ void Card::setRotation(sf::Angle angle) {
     sprite.setRotation(angle);
 }
 
+void Card::setBack(const sf::Texture& texture)
+{
+    spriteBack.setTexture(texture);
+}
+
+void Card::setOwner(int owner)
+{
+    this->owner=owner;
+}
+
 const std::string& Card::getName() const {
     return name;
 }
@@ -55,6 +66,11 @@ Rank Card::getRank() const {
 
 float Card::getPoints() const {
     return points;
+}
+
+int Card::getOwner() const
+{
+    return owner;
 }
 
 bool Card::isOudler() const {
